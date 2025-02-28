@@ -4,7 +4,7 @@ export interface SiteConfig {
   title: string;
   slogan: string;
   description?: string;
-  site: string,
+  site: string;
   social: {
     github?: string;
     linkedin?: string;
@@ -16,22 +16,25 @@ export interface SiteConfig {
   search?: boolean;
 }
 
+// Determine environment (default to 'prod' if not set)
+const DEPLOY_ENV = process.env.DEPLOY_ENV || "prod";
+
 export const siteConfig: SiteConfig = {
-  site: "https://example.com/", // your site url
-  title: "Your's blog",
-  slogan: "Exploring the World and Me",
-  description: "write a description here",
+  site: "",//DEPLOY_ENV === "test" ? "https://test.example.com/" : "https://example.com/",
+  title: "Digital data analytics",
+  slogan: "Data ontgrendeld: van inzicht naar impact.",
+  description: "In de digitale wereld draait alles om data. Maar hoe haal je écht waardevolle inzichten uit je data?",
   social: {
-    github: "https://github.com/username", // leave empty if you don't want to show the github
-    linkedin: "https://www.linkedin.com/in/someone/", // leave empty if you don't want to show the linkedin
-    email: "example@gmail.com", // leave empty if you don't want to show the email
-    rss: true, // set this to false if you don't want to provide an rss feed
+    github: "",
+    linkedin: "https://www.linkedin.com/in/mulderjordy/",
+    email: "jordy@jm-dataconsultancy.nl",
+    rss: false,
   },
   homepage: {
     maxPosts: 5,
     tags: [],
     excludeTags: [],
   },
-  googleAnalysis: "", // your google analysis id
-  search: true, // set this to false if you don't want to provide a search feature
+  googleAnalysis: "",
+  search: true,
 };

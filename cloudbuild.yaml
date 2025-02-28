@@ -1,0 +1,41 @@
+steps:
+  # Install dependencies
+  - name: "gcr.io/cloud-builders/npm"
+    args: ["ci"]
+
+  # Determine environment variables based on the branch
+  - name: "gcr.io/cloud-builders/gcloud"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        if [[ "$BRANCH_NAME" == "test" ]]; then
+          export DEPLOY_ENV="test"
+          export BUCKET_NAME="gs://www.acc.experiencedrivencommerce.nl"
+        elif [[ "$BRANCH_NAME" == "main" ]]; then
+          export DEPLOY_ENV="prod"
+          export BUCKET_NAME="gs://www.experiencedrivencommerce.nl"
+        else
+          echo "Branch does not match test or main. Exiting."
+          exit 1
+        fi
+        echo "DEPLOY_ENV=$DEPLOY_ENV" >> /workspace/env_vars.txt
+        echo "BUCKET_NAME=$BUCKET_NAME" >> /workspace/env_vars.txt
+
+  # Build Astro project using the correct environment variable
+  - name: "gcr.io/cloud-builders/npm"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        source /workspace/env_vars.txt
+        DEPLOY_ENV=$DEPLOY_ENV npm run build
+
+  # Deploy the `dist` folder to the correct GCS bucket
+  - name: "gcr.io/cloud-builders/gcloud"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        source /workspace/env_vars.txt
+        gsutil -m rsync -R ./dist gs://$BUCKET_NAME

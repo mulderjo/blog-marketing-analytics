@@ -16,11 +16,9 @@ export interface SiteConfig {
   search?: boolean;
 }
 
-// Determine environment (default to 'prod' if not set)
-const DEPLOY_ENV = process.env.DEPLOY_ENV || "prod";
 
 export const siteConfig: SiteConfig = {
-  site: "",//DEPLOY_ENV === "test" ? "https://test.example.com/" : "https://example.com/",
+  site: "https://experiencedrivencommerce.nl",//DEPLOY_ENV === "test" ? "https://test.example.com/" : "https://example.com/",
   title: "Digital data analytics",
   slogan: "Data ontgrendeld: van inzicht naar impact.",
   description: "In de digitale wereld draait alles om data. Maar hoe haal je écht waardevolle inzichten uit je data?",

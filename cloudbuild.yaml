@@ -42,3 +42,32 @@ steps:
 
 options:
   logging: CLOUD_LOGGING_ONLY
+
+
+steps:
+  # Step 1: Install dependencies
+  - name: 'gcr.io/cloud-builders/npm'
+    args: ['ci']  # Use 'install' if you don't have package-lock.json
+
+  # Step 2: Build Astro project
+  - name: 'gcr.io/cloud-builders/npm'
+    args: ['run', 'build']
+
+  # Step 3: Deploy to the correct bucket based on the branch name
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - "-c"
+      - |
+        if [[ "$BRANCH_NAME" == "test" ]]; then
+          echo "Deploying to test bucket..."
+          gsutil rsync -R ./dist gs://www.acc.experiencedrivencommerce.nl
+        elif [[ "$BRANCH_NAME" == "main" ]]; then
+          echo "Deploying to production bucket..."
+          gsutil rsync -R ./dist gs://www.experiencedrivencommerce.nl
+        else
+          echo "Branch not recognized, skipping deployment."
+        fi
+
+options:
+  logging: CLOUD_LOGGING_ONLY  # Use Cloud Logging for logs

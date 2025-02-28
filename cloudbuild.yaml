@@ -1,4 +1,8 @@
 steps:
+  # Step 1: Install dependencies
+  - name: 'gcr.io/cloud-builders/npm'
+    args: ['ci']  # Use 'install' if you don't have package-lock.json
+
   # Step 2: Build Astro project
   - name: 'gcr.io/cloud-builders/npm'
     args: ['run', 'build']

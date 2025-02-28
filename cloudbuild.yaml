@@ -39,3 +39,6 @@ steps:
       - |
         source /workspace/env_vars.txt
         gsutil -m rsync -R ./dist gs://$BUCKET_NAME
+
+options:
+  logging: CLOUD_LOGGING_ONLY

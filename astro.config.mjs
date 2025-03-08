@@ -7,6 +7,8 @@ import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
   site: siteConfig.site,
+  output: "static",
+  trailingSlash: "always", // Ensures /blog/ resolves to /blog/index.html
   integrations: [tailwind(), sitemap()],
   markdown: {
     rehypePlugins: [

@@ -9,10 +9,11 @@ steps:
     args:
       - "-c"
       - |
+        echo "Setting environment variables based on branch..."
         if [[ "$BRANCH_NAME" == "test" ]]; then
-          echo "ASTRO_DEPLOY_ENV=test" >> $BUILD_ENV
+          echo "ASTRO_DEPLOY_ENV=test" >> /workspace/build.env
         elif [[ "$BRANCH_NAME" == "main" ]]; then
-          echo "ASTRO_DEPLOY_ENV=production" >> $BUILD_ENV
+          echo "ASTRO_DEPLOY_ENV=production" >> /workspace/build.env
         else
           echo "Branch not recognized, skipping environment setup."
         fi
@@ -23,7 +24,9 @@ steps:
     args:
       - "-c"
       - |
-        source $BUILD_ENV  # Load environment variables
+        if [ -f /workspace/build.env ]; then
+          source /workspace/build.env  # Load environment variables
+        fi
         echo "Building Astro project with ASTRO_DEPLOY_ENV=$ASTRO_DEPLOY_ENV"
         ASTRO_DEPLOY_ENV=$ASTRO_DEPLOY_ENV npm run build
 
@@ -33,7 +36,9 @@ steps:
     args:
       - "-c"
       - |
-        source $BUILD_ENV  # Load environment variables again
+        if [ -f /workspace/build.env ]; then
+          source /workspace/build.env  # Load environment variables again
+        fi
         if [[ "$BRANCH_NAME" == "test" ]]; then
           echo "Deploying to test bucket..."
           gsutil -m rsync -R ./dist gs://$_TEST_BUCKET

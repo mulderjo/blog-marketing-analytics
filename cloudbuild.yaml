@@ -15,7 +15,7 @@ steps:
       - |
         if [[ "$BRANCH_NAME" == "test" ]]; then
           echo "Deploying to test bucket..."
-          gsutil rsync -R ./dist gs://www.acc.experiencedrivencommerce.nl
+          gsutil rsync -R ./dist gs://acc.experiencedrivencommerce.nl
         elif [[ "$BRANCH_NAME" == "main" ]]; then
           echo "Deploying to production bucket..."
           gsutil rsync -R ./dist gs://www.experiencedrivencommerce.nl

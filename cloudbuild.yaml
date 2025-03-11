@@ -1,57 +1,27 @@
 steps:
   # Step 1: Install dependencies
   - name: 'gcr.io/cloud-builders/npm'
-    args: ['ci']
+    args: ['ci']  # Use 'install' if you don't have package-lock.json
 
-  # Step 2: Set environment variables dynamically based on branch
-  - name: 'gcr.io/cloud-builders/gcloud'
-    entrypoint: 'bash'
-    args:
-      - "-c"
-      - |
-        echo "Setting environment variables based on branch..."
-        if [[ "$BRANCH_NAME" == "test" ]]; then
-          echo "ASTRO_DEPLOY_ENV=test" >> /workspace/build.env
-        elif [[ "$BRANCH_NAME" == "main" ]]; then
-          echo "ASTRO_DEPLOY_ENV=production" >> /workspace/build.env
-        else
-          echo "Branch not recognized, skipping environment setup."
-        fi
-
-  # Step 3: Load environment variables and build Astro project
+  # Step 2: Build Astro project
   - name: 'gcr.io/cloud-builders/npm'
-    entrypoint: 'bash'
-    args:
-      - "-c"
-      - |
-        if [ -f /workspace/build.env ]; then
-          source /workspace/build.env  # Load environment variables
-        fi
-        echo "Building Astro project with ASTRO_DEPLOY_ENV=$ASTRO_DEPLOY_ENV"
-        ASTRO_DEPLOY_ENV=$ASTRO_DEPLOY_ENV npm run build
+    args: ['run', 'build']
 
-  # Step 4: Deploy the build output to the correct GCS bucket
+  # Step 3: Deploy to the correct bucket based on the branch name
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - "-c"
       - |
-        if [ -f /workspace/build.env ]; then
-          source /workspace/build.env  # Load environment variables again
-        fi
         if [[ "$BRANCH_NAME" == "test" ]]; then
           echo "Deploying to test bucket..."
-          gsutil -m rsync -R ./dist gs://$_TEST_BUCKET
+          gsutil rsync -R ./dist gs://www.acc.experiencedrivencommerce.nl
         elif [[ "$BRANCH_NAME" == "main" ]]; then
           echo "Deploying to production bucket..."
-          gsutil -m rsync -R ./dist gs://$_PROD_BUCKET
+          gsutil rsync -R ./dist gs://www.experiencedrivencommerce.nl
         else
           echo "Branch not recognized, skipping deployment."
         fi
 
-substitutions:
-  _TEST_BUCKET: "www.acc.experiencedrivencommerce.nl"
-  _PROD_BUCKET: "www.experiencedrivencommerce.nl"
-
 options:
-  logging: CLOUD_LOGGING_ONLY
+  logging: CLOUD_LOGGING_ONLY  # Use Cloud Logging for logs

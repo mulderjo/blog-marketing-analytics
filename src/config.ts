@@ -18,7 +18,7 @@ export interface SiteConfig {
 
 
 export const siteConfig: SiteConfig = {
-  site: "https://experiencedrivencommerce.nl",//DEPLOY_ENV === "test" ? "https://test.example.com/" : "https://example.com/",
+  site: "https://acc.experiencedrivencommerce.nl",//DEPLOY_ENV === "test" ? "https://test.example.com/" : "https://example.com/",
   title: "Digital data analytics",
   slogan: "Data ontgrendeld: van inzicht naar impact.",
   description: "In de digitale wereld draait alles om data. Maar hoe haal je écht waardevolle inzichten uit je data?",

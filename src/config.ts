@@ -16,12 +16,18 @@ export interface SiteConfig {
   search?: boolean;
 }
 
+// Dynamically set site URL based on the environment
+const DEPLOY_ENV = process.env.ASTRO_DEPLOY_ENV || "production"; // Default to production if not set
 
 export const siteConfig: SiteConfig = {
-  site: "https://experiencedrivencommerce.nl",//DEPLOY_ENV === "test" ? "https://test.example.com/" : "https://example.com/",
+  site: DEPLOY_ENV === "test" 
+    ? "https://acc.experiencedrivencommerce.nl" 
+    : "https://experiencedrivencommerce.nl",
+
   title: "Digital data analytics",
   slogan: "Data ontgrendeld: van inzicht naar impact.",
   description: "In de digitale wereld draait alles om data. Maar hoe haal je écht waardevolle inzichten uit je data?",
+  
   social: {
     github: "",
     linkedin: "https://www.linkedin.com/in/mulderjordy/",

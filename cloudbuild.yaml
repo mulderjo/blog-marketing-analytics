@@ -1,27 +1,52 @@
 steps:
   # Step 1: Install dependencies
   - name: 'gcr.io/cloud-builders/npm'
-    args: ['ci']  # Use 'install' if you don't have package-lock.json
+    args: ['ci']
 
-  # Step 2: Build Astro project
-  - name: 'gcr.io/cloud-builders/npm'
-    args: ['run', 'build']
-
-  # Step 3: Deploy to the correct bucket based on the branch name
+  # Step 2: Set environment variables dynamically based on branch
   - name: 'gcr.io/cloud-builders/gcloud'
     entrypoint: 'bash'
     args:
       - "-c"
       - |
         if [[ "$BRANCH_NAME" == "test" ]]; then
+          echo "ASTRO_DEPLOY_ENV=test" >> $BUILD_ENV
+        elif [[ "$BRANCH_NAME" == "main" ]]; then
+          echo "ASTRO_DEPLOY_ENV=production" >> $BUILD_ENV
+        else
+          echo "Branch not recognized, skipping environment setup."
+        fi
+
+  # Step 3: Load environment variables and build Astro project
+  - name: 'gcr.io/cloud-builders/npm'
+    entrypoint: 'bash'
+    args:
+      - "-c"
+      - |
+        source $BUILD_ENV  # Load environment variables
+        echo "Building Astro project with ASTRO_DEPLOY_ENV=$ASTRO_DEPLOY_ENV"
+        ASTRO_DEPLOY_ENV=$ASTRO_DEPLOY_ENV npm run build
+
+  # Step 4: Deploy the build output to the correct GCS bucket
+  - name: 'gcr.io/cloud-builders/gcloud'
+    entrypoint: 'bash'
+    args:
+      - "-c"
+      - |
+        source $BUILD_ENV  # Load environment variables again
+        if [[ "$BRANCH_NAME" == "test" ]]; then
           echo "Deploying to test bucket..."
-          gsutil rsync -R ./dist gs://www.acc.experiencedrivencommerce.nl
+          gsutil -m rsync -R ./dist gs://$_TEST_BUCKET
         elif [[ "$BRANCH_NAME" == "main" ]]; then
           echo "Deploying to production bucket..."
-          gsutil rsync -R ./dist gs://www.experiencedrivencommerce.nl
+          gsutil -m rsync -R ./dist gs://$_PROD_BUCKET
         else
           echo "Branch not recognized, skipping deployment."
         fi
 
+substitutions:
+  _TEST_BUCKET: "www.acc.experiencedrivencommerce.nl"
+  _PROD_BUCKET: "www.experiencedrivencommerce.nl"
+
 options:
-  logging: CLOUD_LOGGING_ONLY  # Use Cloud Logging for logs
+  logging: CLOUD_LOGGING_ONLY
